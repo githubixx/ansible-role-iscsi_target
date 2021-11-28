@@ -18,7 +18,7 @@ driver:
       cpus: 2
 
 platforms:
-  - name: ubuntu
+  - name: ubuntu2004
     box: generic/ubuntu2004
     provider_raw_config_args:
       - "storage :file, :size => '1G', :device => 'vdb'"
@@ -27,6 +27,15 @@ platforms:
         network_name: private_network
         type: static
         ip: 192.168.10.10
+  - name: ubuntu1804
+    box: generic/ubuntu1804
+    provider_raw_config_args:
+      - "storage :file, :size => '1G', :device => 'vdb'"
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: static
+        ip: 192.168.10.20
   - name: archlinux
     box: archlinux/archlinux
     provider_raw_config_args:
@@ -36,7 +45,7 @@ platforms:
       - auto_config: true
         network_name: private_network
         type: static
-        ip: 192.168.10.20
+        ip: 192.168.10.30
 
 provisioner:
   name: ansible

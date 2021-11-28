@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+**1.1.0**
+
+- add Molecule test for Ubuntu 18.04
+
 **1.0.0**
 
 - initial commit
