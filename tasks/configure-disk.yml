@@ -1,0 +1,18 @@
+---
+- name: Create or remove backstore objects for disk {{ disk.name }} and target {{ target.name }}
+  targetcli_backstore:
+    backstore_type: "{{ disk.type | default(iscsi_default_disk_type) }}"
+    backstore_name: "{{ disk.name }}"
+    options: " {{ disk.path }} "
+    state: "{{ target.state | default('present') }}"
+  notify:
+    - save targetcli configuration
+
+- name: Create or remove LUN {{ disk.name }} and target {{ target.name }}
+  targetcli_iscsi_lun:
+    wwn: "{{ target.name }}"
+    backstore_type: "{{ disk.type | default(iscsi_default_disk_type) }}"
+    backstore_name: "{{ disk.name }}"
+    lunid: "{{ disk.lunid }}"
+  notify:
+    - save targetcli configuration

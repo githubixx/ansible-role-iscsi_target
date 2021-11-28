@@ -1,0 +1,5 @@
+---
+- name: Install targetcli packages
+  ansible.builtin.package:
+    name: "{{ iscsi_packages }}"
+    state: present

@@ -1,0 +1,8 @@
+---
+- name: Create portal for target {{ target.name }}
+  targetcli_iscsi_portal:
+    wwn: "{{ target.name }}"
+    ip: "{{ portal.ip }}"
+    port: "{{ portal.port | default(omit) }}"
+  notify:
+    - save targetcli configuration

@@ -1,0 +1,34 @@
+---
+- name: Define ACLs for iSCSI initiator {{ initiator.name }} for target {{ target.name }}
+  targetcli_iscsi_acl:
+    wwn: "{{ target.name }}"
+    initiator_wwn: "{{ initiator.name }}"
+  notify:
+    - save targetcli configuration
+
+- name: Configure authentication for initiator {{ initiator.name }} for target {{ target.name }}
+  targetcli_iscsi_auth:
+    wwn: "{{ target.name }}"
+    initiator_wwn: "{{ initiator.name }}"
+    userid: "{{ initiator.authentication.userid }}"
+    password: "{{ initiator.authentication.password }}"
+    userid_mutual: "{{ initiator.authentication.userid_mutual | default(omit) }}"
+    password_mutual: "{{ initiator.authentication.password_mutual | default(omit) }}"
+  notify:
+    - save targetcli configuration
+
+# Assign mapped LUNs to initiator
+- name: Adding mapped LUNs for initiator {{ initiator.name }} and target {{ target.name }}
+  targetcli_iscsi_mappedlun:
+    wwn: "{{ target.name }}"
+    initiator_wwn: "{{ initiator.name }}"
+    mapped_lunid: "{{ mapped_lun.mapped_lunid }}"
+    lunid: "{{ mapped_lun.lunid }}"
+    write_protect: "{{ mapped_lun.write_protect | default(omit) }}"
+  notify:
+    - save targetcli configuration
+  when: target.state|default("present") == "present"
+  loop_control:
+    loop_var: "mapped_lun"
+  with_items:
+    - "{{ initiator.mapped_luns }}"

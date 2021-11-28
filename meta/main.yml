@@ -1,0 +1,23 @@
+---
+galaxy_info:
+  author: Robert Wimmer
+  description: Configure iSCSI target role
+  license: MIT
+  min_ansible_version: 2.9
+  role_name: iscsi_target
+  namespace: githubixx
+  platforms:
+    - name: ArchLinux
+    - name: Ubuntu
+      versions:
+        - focal
+        - bionic
+  galaxy_tags:
+    - system
+    - disk
+    - iscsi
+    - target
+    - storage
+dependencies: []
+collections:
+  - kewlfft.aur
