@@ -175,6 +175,6 @@ MIT/BSD
 Author Information
 ------------------
 
-Original author: Ondrej Famera [ansible.targetcli](https://github.com/OndrejHome/ansible.targetcli)
-Additional author: Ricardo Sanchez [ansible-role-iscsi_target](https://github.com/ricsanfre/ansible-role-iscsi_target)
+Original author: Ondrej Famera [ansible.targetcli](https://github.com/OndrejHome/ansible.targetcli)  
+Additional author: Ricardo Sanchez [ansible-role-iscsi_target](https://github.com/ricsanfre/ansible-role-iscsi_target)  
 Additional author (this role version): [https://www.tauceti.blog](http://www.tauceti.blog)
