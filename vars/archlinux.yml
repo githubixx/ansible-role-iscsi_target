@@ -1,0 +1,5 @@
+---
+iscsi_packages:
+  - targetcli-fb
+
+iscsi_target_service_name: target

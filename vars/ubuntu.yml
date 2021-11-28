@@ -1,0 +1,6 @@
+---
+iscsi_packages:
+  - python3-distutils
+  - targetcli-fb
+
+iscsi_target_service_name: rtslib-fb-targetctl

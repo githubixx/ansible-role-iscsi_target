@@ -1,0 +1,33 @@
+---
+iscsi_targets:
+  - name: "iqn.2021-11.blog.tauceti:{{ ansible_facts['nodename'] }}"
+    disks:
+      - name: lun_node1
+        path: /dev/vdb
+        type: block
+        lunid: 0
+      - name: lun_node2
+        path: /dev/vdc
+        type: block
+        lunid: 1
+    initiators:
+      - name: iqn.2021-07.blog.tauceti:node1
+        authentication:
+          userid: node1user
+          password: node1pw
+          userid_mutual: node1sharedkey
+          password_mutual: node1sharedsecret
+        mapped_luns:
+          - mapped_lunid: 0
+            lunid: 0
+      - name: iqn.2021-07.blog.tauceti:node2
+        authentication:
+          userid: node2user
+          password: node2pw
+          userid_mutual: node2sharedkey
+          password_mutual: node2sharedsecret
+        mapped_luns:
+          - mapped_lunid: 1
+            lunid: 1
+    portals:
+      - ip: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0]) }}"

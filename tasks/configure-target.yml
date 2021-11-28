@@ -1,0 +1,45 @@
+---
+- name: Create or remove iSCSI target {{ target.name }}
+  targetcli_iscsi:
+    wwn: "{{ target.name }}"
+    state: "{{ target.state | default('present') }}"
+  notify:
+    - save targetcli configuration
+
+- name: Disable auto add mapped luns
+  targetcli_preferences:
+    preference: 'auto_add_mapped_luns'
+    value: 'false'
+
+# Configure disks
+- include_tasks: configure-disk.yml
+  with_items:
+    - "{{ target.disks }}"
+  loop_control:
+    loop_var: "disk"
+  when: target.state|default("present") == "present"
+
+# Configure initiators
+- include_tasks: configure-initiator.yml
+  with_items:
+    - "{{ target.initiators }}"
+  loop_control:
+    loop_var: "initiator"
+  when: target.state|default("present") == "present"
+
+- name: Remove default portal for {{ target.name }}
+  targetcli_iscsi_portal:
+    wwn: "{{ target.name }}"
+    ip: "0.0.0.0"
+    state: absent
+  notify:
+    - save targetcli configuration
+  when: target.state|default("present") == "present"
+
+# Configure portal
+- include_tasks: configure-portal.yml
+  with_items:
+    - "{{ target.portals }}"
+  loop_control:
+    loop_var: "portal"
+  when: target.state|default("present") == "present"

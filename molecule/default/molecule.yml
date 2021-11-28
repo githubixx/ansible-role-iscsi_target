@@ -1,0 +1,47 @@
+---
+dependency:
+  name: galaxy
+  role-file: req.yml
+  requirements-file: req.yml
+
+lint: |
+  set -e
+  yamllint .
+  ansible-lint
+
+driver:
+  name: vagrant
+  provider:
+    name: libvirt
+    options:
+      memory: 256
+      cpus: 2
+
+platforms:
+  - name: ubuntu
+    box: generic/ubuntu2004
+    provider_raw_config_args:
+      - "storage :file, :size => '1G', :device => 'vdb'"
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: static
+        ip: 192.168.10.10
+  - name: archlinux
+    box: archlinux/archlinux
+    provider_raw_config_args:
+      - "storage :file, :size => '1G', :device => 'vdb'"
+      - "storage :file, :size => '1G', :device => 'vdc'"
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: static
+        ip: 192.168.10.20
+
+provisioner:
+  name: ansible
+  playbooks:
+    prepare: prepare.yml
+    converge: ${MOLECULE_PLAYBOOK:-converge.yml}
+verifier:
+  name: ansible

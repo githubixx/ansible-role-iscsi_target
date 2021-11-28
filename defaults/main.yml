@@ -1,0 +1,48 @@
+---
+# The iSCSI target(s) is/are configured via "iscsi_targets" nested variable.
+# A quite minimal setup looks like this example:
+#
+# iscsi_targets:
+#   - name: "iqn.2021-11.blog.tauceti:{{ ansible_facts['nodename'] }}"
+#     disks:
+#       - name: lun_node1
+#         path: /dev/vdb
+#         type: block
+#         lunid: 0
+#     initiators:
+#       - name: iqn.2021-07.blog.tauceti:node1
+#         authentication:
+#           userid: node1user
+#           password: node1pw
+#           userid_mutual: node1sharedkey
+#           password_mutual: node1sharedsecret
+#         mapped_luns:
+#           - mapped_lunid: 0
+#             lunid: 0
+#     portals:
+#       - ip: "0.0.0.0"
+#
+# For more information see README.
+iscsi_targets: []
+
+#######################################
+# Settings only relevant for Archlinux
+#######################################
+
+# "targetcli-fb" package is needed to configure iSCSI target. For Archlinux
+# this package needs to be installed from AUR. This requires an AUR install
+# helper like "yay", "paru", "pacaur", "trizen" or "pikaur". If such a helper
+# is already installed on the target host then there is no need to install it
+# via this role. In this case "iscsi_archlinux_aur_helper" needs to be
+# commented and this role will skip the installation of an AUR helper.
+# The install task picks one of the AUR helper mentioned above (in that order)
+# to install the iSCSI packages.
+iscsi_archlinux_aur_helper: yay
+
+# While Ansible expects to SSH as root, makepkg or AUR helpers do not allow
+# executing operations as root, they fail with "you cannot perform this
+# operation as root". It is therefore recommended to have a user, which
+# is non-root but has no need for password. If "iscsi_archlinux_aur_helper"
+# variable is set it is assumed that the AUR helper user doesn't exist yet
+# so it will be created. The user will be part of the "wheel" group.
+iscsi_archlinux_aur_helper_user: aur_builder

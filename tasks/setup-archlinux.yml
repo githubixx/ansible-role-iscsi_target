@@ -1,0 +1,47 @@
+---
+- name: Install prerequisites to install AUR helper
+  block:
+    - name: Install needed packages
+      ansible.builtin.package:
+        name: "{{ package }}"
+        state: present
+      loop:
+        - fakeroot
+        - binutils
+        - base-devel
+      loop_control:
+        loop_var: "package"
+
+    - name: Create the AUR builder user
+      ansible.builtin.user:
+        name: "{{ iscsi_archlinux_aur_helper_user }}"
+        create_home: true
+        group: wheel
+
+    - name: Allow the AUR builder user to run `sudo pacman` without a password
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers.d/99-install-aur_builder
+        line: 'aur_builder ALL=(ALL) NOPASSWD: /usr/bin/pacman'
+        mode: 0600
+        create: true
+        validate: 'visudo -cf %s'
+
+    - name: "Install {{ iscsi_archlinux_aur_helper }} using makepkg if it isn't installed already"
+      kewlfft.aur.aur:
+        name: "{{ iscsi_archlinux_aur_helper }}"
+        use: makepkg
+        state: present
+      become: true
+      become_user: "{{ iscsi_archlinux_aur_helper_user }}"
+  when:
+    - iscsi_archlinux_aur_helper is defined
+
+- name: Install targetcli packages
+  kewlfft.aur.aur:
+    name: "{{ package }}"
+    state: present
+  become: true
+  become_user: "{{ iscsi_archlinux_aur_helper_user }}"
+  loop: "{{ iscsi_packages }}"
+  loop_control:
+    loop_var: "package"
