@@ -12,6 +12,7 @@ galaxy_info:
       versions:
         - "focal"
         - "bionic"
+        - "jammy"
   galaxy_tags:
     - system
     - disk
