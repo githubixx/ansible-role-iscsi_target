@@ -17,7 +17,7 @@
     - "{{ target.disks }}"
   loop_control:
     loop_var: "disk"
-  when: target.state|default("present") == "present"
+  when: target.state | default("present") == "present"
 
 # Configure initiators
 - include_tasks: configure-initiator.yml
@@ -25,7 +25,7 @@
     - "{{ target.initiators }}"
   loop_control:
     loop_var: "initiator"
-  when: target.state|default("present") == "present"
+  when: target.state | default("present") == "present"
 
 - name: Remove default portal for {{ target.name }}
   targetcli_iscsi_portal:
@@ -34,7 +34,7 @@
     state: absent
   notify:
     - save targetcli configuration
-  when: target.state|default("present") == "present"
+  when: target.state | default("present") == "present"
 
 # Configure portal
 - include_tasks: configure-portal.yml

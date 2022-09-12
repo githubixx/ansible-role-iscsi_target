@@ -27,7 +27,7 @@
     write_protect: "{{ mapped_lun.write_protect | default(omit) }}"
   notify:
     - save targetcli configuration
-  when: target.state|default("present") == "present"
+  when: target.state | default("present") == "present"
   loop_control:
     loop_var: "mapped_lun"
   with_items:
