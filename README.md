@@ -5,7 +5,9 @@ This role configures a Linux-LIO based iSCSI target on a Linux host using `targe
 
 Tested with:
 
+- Ubuntu 18.04
 - Ubuntu 20.04
+- Ubuntu 22.04
 - Archlinux
 
 Documentation about LIO and Target can be found [here](https://linux-iscsi.org/wiki/Main_Page).
@@ -160,6 +162,12 @@ molecule converge
 ```
 
 This will setup a few virtual machines (VM) with different supported Linux operating systems and installs `iscsi_target` role.
+
+To run a few tests:
+
+```bash
+molecule verify
+```
 
 To clean up run
 

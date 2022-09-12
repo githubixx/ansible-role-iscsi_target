@@ -18,18 +18,7 @@
       include_role:
         name: githubixx.iscsi_target
 
-- hosts: ubuntu2004
-  vars_files:
-    - vars/ubuntu.yml
-  remote_user: vagrant
-  become: true
-  gather_facts: true
-  tasks:
-    - name: Include iscsi_target role
-      include_role:
-        name: githubixx.iscsi_target
-
-- hosts: ubuntu1804
+- hosts: ubuntu
   vars_files:
     - vars/ubuntu.yml
   remote_user: vagrant
