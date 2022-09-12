@@ -4,7 +4,7 @@
     wwn: "{{ target.name }}"
     state: "{{ target.state | default('present') }}"
   notify:
-    - save targetcli configuration
+    - Save targetcli configuration
 
 - name: Disable auto add mapped luns
   targetcli_preferences:
@@ -33,7 +33,7 @@
     ip: "0.0.0.0"
     state: absent
   notify:
-    - save targetcli configuration
+    - Save targetcli configuration
   when: target.state | default("present") == "present"
 
 # Configure portal

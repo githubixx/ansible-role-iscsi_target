@@ -6,7 +6,7 @@
     options: " {{ disk.path }} "
     state: "{{ target.state | default('present') }}"
   notify:
-    - save targetcli configuration
+    - Save targetcli configuration
 
 - name: Create or remove LUN {{ disk.name }} and target {{ target.name }}
   targetcli_iscsi_lun:
@@ -15,4 +15,4 @@
     backstore_name: "{{ disk.name }}"
     lunid: "{{ disk.lunid }}"
   notify:
-    - save targetcli configuration
+    - Save targetcli configuration
