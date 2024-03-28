@@ -14,4 +14,3 @@
       ansible.builtin.assert:
         that:
           - "expected_output in targetcli_output.stdout"
-
