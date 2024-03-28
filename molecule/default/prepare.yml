@@ -1,5 +1,5 @@
 ---
-- name: Prepare
+- name: Setup Archlinux hosts
   hosts: archlinux
   gather_facts: false
   become: true
@@ -24,7 +24,8 @@
     - name: Reboot for kernel updates
       ansible.builtin.reboot:
 
-- hosts: ubuntu
+- name: Setup Ubuntu hosts
+  hosts: ubuntu
   remote_user: vagrant
   become: true
   gather_facts: true

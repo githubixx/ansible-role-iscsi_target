@@ -7,7 +7,8 @@
   collections:
     - kewlfft.aur
 
-- hosts: archlinux
+- name: Setup Archlinux hosts
+  hosts: archlinux
   vars_files:
     - vars/archlinux.yml
   remote_user: vagrant
@@ -18,7 +19,8 @@
       ansible.builtin.include_role:
         name: githubixx.iscsi_target
 
-- hosts: ubuntu
+- name: Setup Ubuntu hosts
+  hosts: ubuntu
   vars_files:
     - vars/ubuntu.yml
   remote_user: vagrant
