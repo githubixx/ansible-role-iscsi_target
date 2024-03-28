@@ -29,19 +29,6 @@ platforms:
         ip: 192.168.10.10
     groups:
       - ubuntu
-  - name: ubuntu1804
-    box: generic/ubuntu1804
-    memory: 1024
-    cpus: 2
-    provider_raw_config_args:
-      - "storage :file, :size => '1G', :device => 'vdb'"
-    interfaces:
-      - auto_config: true
-        network_name: private_network
-        type: static
-        ip: 192.168.10.20
-    groups:
-      - ubuntu
   - name: archlinux
     box: archlinux/archlinux
     memory: 1024
