@@ -4,8 +4,8 @@
   remote_user: vagrant
   become: true
   gather_facts: true
-  collections:
-    - kewlfft.aur
+#  collections:
+#    - kewlfft.aur
 
 - name: Setup Archlinux hosts
   hosts: archlinux

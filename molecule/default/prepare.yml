@@ -8,18 +8,22 @@
       ansible.builtin.raw: |
         pacman-key --init
         pacman-key --populate archlinux
+      changed_when: false
 
     - name: Updating pacman cache
       ansible.builtin.raw: |
         pacman -Sy
+      changed_when: false
 
     - name: Install python for Ansible
       ansible.builtin.raw: |
         test -e /usr/bin/python || (pacman --noconfirm python)
+      changed_when: false
 
     - name: Upgrade the whole system
       ansible.builtin.raw: |
         pacman --noconfirm -Su
+      changed_when: false
 
     - name: Reboot for kernel updates
       ansible.builtin.reboot:

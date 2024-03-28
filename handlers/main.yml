@@ -1,3 +1,9 @@
 ---
 - name: Save targetcli configuration
-  ansible.builtin.shell: "yes|targetcli saveconfig"
+  ansible.builtin.shell: |
+    yes|targetcli saveconfig
+  args:
+    executable: /bin/bash
+  register: iscsi_target__targetcli_saveconfig_out
+  changed_when: false
+  failed_when: iscsi_target__targetcli_saveconfig_out.rc != 0
