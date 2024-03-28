@@ -26,7 +26,7 @@
         create: true
         validate: 'visudo -cf %s'
 
-    - name: "Install {{ iscsi_archlinux_aur_helper }} using makepkg if it isn't installed already"
+    - name: "Install AUR helper using makepkg if it isn't installed already: {{ iscsi_archlinux_aur_helper }}"
       kewlfft.aur.aur:
         name: "{{ iscsi_archlinux_aur_helper }}"
         use: makepkg
