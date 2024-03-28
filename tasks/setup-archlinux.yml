@@ -24,7 +24,7 @@
       ansible.builtin.lineinfile:
         path: /etc/sudoers.d/99-install-aur_builder
         line: 'aur_builder ALL=(ALL) NOPASSWD: /usr/bin/pacman'
-        mode: 0600
+        mode: "0600"
         create: true
         validate: 'visudo -cf %s'
 
