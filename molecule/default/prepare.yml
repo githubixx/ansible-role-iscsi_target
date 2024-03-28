@@ -5,21 +5,24 @@
   become: true
   tasks:
     - name: Init pacman
-      raw: |
+      ansible.builtin.raw: |
         pacman-key --init
         pacman-key --populate archlinux
 
     - name: Updating pacman cache
-      raw: pacman -Sy
+      ansible.builtin.raw: |
+        pacman -Sy
 
     - name: Install python for Ansible
-      raw: test -e /usr/bin/python || (pacman --noconfirm python)
+      ansible.builtin.raw: |
+        test -e /usr/bin/python || (pacman --noconfirm python)
 
     - name: Upgrade the whole system
-      raw: pacman --noconfirm -Su
+      ansible.builtin.raw: |
+        pacman --noconfirm -Su
 
     - name: Reboot for kernel updates
-      reboot:
+      ansible.builtin.reboot:
 
 - hosts: ubuntu
   remote_user: vagrant

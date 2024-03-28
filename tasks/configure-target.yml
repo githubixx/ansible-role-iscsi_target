@@ -12,7 +12,7 @@
     value: 'false'
 
 # Configure disks
-- include_tasks: configure-disk.yml
+- ansible.builtin.include_tasks: configure-disk.yml
   with_items:
     - "{{ target.disks }}"
   loop_control:
@@ -20,7 +20,7 @@
   when: target.state | default("present") == "present"
 
 # Configure initiators
-- include_tasks: configure-initiator.yml
+- ansible.builtin.include_tasks: configure-initiator.yml
   with_items:
     - "{{ target.initiators }}"
   loop_control:
@@ -37,7 +37,7 @@
   when: target.state | default("present") == "present"
 
 # Configure portal
-- include_tasks: configure-portal.yml
+- ansible.builtin.include_tasks: configure-portal.yml
   with_items:
     - "{{ target.portals }}"
   loop_control:

@@ -15,7 +15,7 @@
   gather_facts: true
   tasks:
     - name: Include iscsi_target role
-      include_role:
+      ansible.builtin.include_role:
         name: githubixx.iscsi_target
 
 - hosts: ubuntu
@@ -26,5 +26,5 @@
   gather_facts: true
   tasks:
     - name: Include iscsi_target role
-      include_role:
+      ansible.builtin.include_role:
         name: githubixx.iscsi_target
