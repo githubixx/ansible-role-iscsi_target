@@ -1,5 +1,7 @@
 ---
 - name: Install prerequisites to install AUR helper
+  when:
+    - iscsi_archlinux_aur_helper is defined
   block:
     - name: Install needed packages
       ansible.builtin.package:
@@ -33,8 +35,6 @@
         state: present
       become: true
       become_user: "{{ iscsi_archlinux_aur_helper_user }}"
-  when:
-    - iscsi_archlinux_aur_helper is defined
 
 - name: Install targetcli packages
   kewlfft.aur.aur:
