@@ -5,7 +5,6 @@ This role configures a Linux-LIO based iSCSI target on a Linux host using `targe
 
 Tested with:
 
-- Ubuntu 18.04
 - Ubuntu 20.04
 - Ubuntu 22.04
 - Archlinux
@@ -99,8 +98,8 @@ The configuration above will create an iSCSI setup that will look like this (Out
 # this package needs to be installed from AUR. This requires an AUR install
 # helper like "yay", "paru", "pacaur", "trizen" or "pikaur". If such a helper
 # is already installed on the target host then there is no need to install it
-# via this role. In this case "iscsi_archlinux_aur_helper" needs to be 
-# commented and this role will skip the installation of an AUR helper.
+# via this role. In this case "iscsi_archlinux_aur_helper" needs to be
+# set to "" (empty sting) and this role will skip the installation of an AUR helper.
 # The install task picks one of the AUR helper mentioned above (in that order)
 # to install the iSCSI packages.
 iscsi_archlinux_aur_helper: yay

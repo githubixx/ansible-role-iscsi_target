@@ -34,7 +34,7 @@ iscsi_targets: []
 # helper like "yay", "paru", "pacaur", "trizen" or "pikaur". If such a helper
 # is already installed on the target host then there is no need to install it
 # via this role. In this case "iscsi_archlinux_aur_helper" needs to be
-# commented and this role will skip the installation of an AUR helper.
+# set to "" (empty sting) and this role will skip the installation of an AUR helper.
 # The install task picks one of the AUR helper mentioned above (in that order)
 # to install the iSCSI packages.
 iscsi_archlinux_aur_helper: yay
