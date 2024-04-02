@@ -15,9 +15,9 @@
         pacman -Sy
       changed_when: false
 
-    - name: Install python for Ansible
+    - name: Install Python for Ansible
       ansible.builtin.raw: |
-        test -e /usr/bin/python || (pacman --noconfirm python)
+        pacman -S --noconfirm python
       changed_when: false
 
     - name: Upgrade the whole system
