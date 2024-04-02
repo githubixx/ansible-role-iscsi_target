@@ -2,6 +2,7 @@
 - name: Install prerequisites to install AUR helper
   when:
     - iscsi_archlinux_aur_helper is defined
+    - iscsi_archlinux_aur_helper != ""
   block:
     - name: Install needed packages
       ansible.builtin.package:
