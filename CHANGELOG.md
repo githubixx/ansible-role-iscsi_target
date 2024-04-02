@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.0.0
+
+- remove support of Ubuntu 18.04 (EOL)
+- `handlers/main.yml`: supplying `yes` to `targetcli` command is no longer needed
+- Archlinux: allow `iscsi_archlinux_aur_helper` to be set to empty string
+- add `.yamllint`
+- add `.ansible-lint`
+- Github Actions: fix Ansible Galaxy import
+- fix various `ansible-lint` issues
+- Molecule: fix `prepare.yml` for Archlinux
+- Molecule: increase instances memory
+
 ## 1.2.0
 
 - add Ubuntu 22.04 support
