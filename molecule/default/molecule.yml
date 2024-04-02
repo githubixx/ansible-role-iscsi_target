@@ -18,7 +18,7 @@ driver:
 platforms:
   - name: ubuntu2004
     box: generic/ubuntu2004
-    memory: 1024
+    memory: 2048
     cpus: 2
     provider_raw_config_args:
       - "storage :file, :size => '1G', :device => 'vdb'"
@@ -26,25 +26,12 @@ platforms:
       - auto_config: true
         network_name: private_network
         type: static
-        ip: 192.168.10.10
-    groups:
-      - ubuntu
-  - name: ubuntu1804
-    box: generic/ubuntu1804
-    memory: 1024
-    cpus: 2
-    provider_raw_config_args:
-      - "storage :file, :size => '1G', :device => 'vdb'"
-    interfaces:
-      - auto_config: true
-        network_name: private_network
-        type: static
-        ip: 192.168.10.20
+        ip: 172.16.10.10
     groups:
       - ubuntu
   - name: archlinux
     box: archlinux/archlinux
-    memory: 1024
+    memory: 2048
     cpus: 2
     provider_raw_config_args:
       - "storage :file, :size => '1G', :device => 'vdb'"
@@ -53,12 +40,12 @@ platforms:
       - auto_config: true
         network_name: private_network
         type: static
-        ip: 192.168.10.30
+        ip: 172.16.10.20
     groups:
       - archlinux
   - name: ubuntu2204
     box: generic/ubuntu2204
-    memory: 1024
+    memory: 2048
     cpus: 2
     provider_raw_config_args:
       - "storage :file, :size => '1G', :device => 'vdb'"
@@ -66,7 +53,7 @@ platforms:
       - auto_config: true
         network_name: private_network
         type: static
-        ip: 192.168.10.40
+        ip: 172.16.10.30
     groups:
       - ubuntu
 

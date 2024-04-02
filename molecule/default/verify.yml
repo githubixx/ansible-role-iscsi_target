@@ -5,13 +5,12 @@
     expected_output: "iqn.2021-11.blog.tauceti:{{ ansible_facts['nodename'] }}"
   tasks:
     - name: Execute targetcli to capture output
-      command: targetcli "ls /"
+      ansible.builtin.command: targetcli "ls /"
       register: targetcli_output
       changed_when: false
       become: true
 
     - name: Ensure targetcli output contains correct string
-      assert:
+      ansible.builtin.assert:
         that:
           - "expected_output in targetcli_output.stdout"
-

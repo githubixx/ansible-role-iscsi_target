@@ -1,5 +1,8 @@
 ---
 - name: Install prerequisites to install AUR helper
+  when:
+    - iscsi_archlinux_aur_helper is defined
+    - iscsi_archlinux_aur_helper != ""
   block:
     - name: Install needed packages
       ansible.builtin.package:
@@ -22,19 +25,17 @@
       ansible.builtin.lineinfile:
         path: /etc/sudoers.d/99-install-aur_builder
         line: 'aur_builder ALL=(ALL) NOPASSWD: /usr/bin/pacman'
-        mode: 0600
+        mode: "0600"
         create: true
         validate: 'visudo -cf %s'
 
-    - name: "Install {{ iscsi_archlinux_aur_helper }} using makepkg if it isn't installed already"
+    - name: "Install AUR helper using makepkg if it isn't installed already: {{ iscsi_archlinux_aur_helper }}"
       kewlfft.aur.aur:
         name: "{{ iscsi_archlinux_aur_helper }}"
         use: makepkg
         state: present
       become: true
       become_user: "{{ iscsi_archlinux_aur_helper_user }}"
-  when:
-    - iscsi_archlinux_aur_helper is defined
 
 - name: Install targetcli packages
   kewlfft.aur.aur:

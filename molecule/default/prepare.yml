@@ -1,27 +1,35 @@
 ---
-- name: Prepare
+- name: Setup Archlinux hosts
   hosts: archlinux
   gather_facts: false
   become: true
   tasks:
     - name: Init pacman
-      raw: |
+      ansible.builtin.raw: |
         pacman-key --init
         pacman-key --populate archlinux
+      changed_when: false
 
     - name: Updating pacman cache
-      raw: pacman -Sy
+      ansible.builtin.raw: |
+        pacman -Sy
+      changed_when: false
 
-    - name: Install python for Ansible
-      raw: test -e /usr/bin/python || (pacman --noconfirm python)
+    - name: Install Python for Ansible
+      ansible.builtin.raw: |
+        pacman -S --noconfirm python
+      changed_when: false
 
     - name: Upgrade the whole system
-      raw: pacman --noconfirm -Su
+      ansible.builtin.raw: |
+        pacman --noconfirm -Su
+      changed_when: false
 
     - name: Reboot for kernel updates
-      reboot:
+      ansible.builtin.reboot:
 
-- hosts: ubuntu
+- name: Setup Ubuntu hosts
+  hosts: ubuntu
   remote_user: vagrant
   become: true
   gather_facts: true

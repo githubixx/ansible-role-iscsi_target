@@ -1,12 +1,12 @@
 ---
-- name: Define ACLs for iSCSI initiator {{ initiator.name }} for target {{ target.name }}
+- name: Define ACLs for iSCSI initiator for target
   targetcli_iscsi_acl:
     wwn: "{{ target.name }}"
     initiator_wwn: "{{ initiator.name }}"
   notify:
     - Save targetcli configuration
 
-- name: Configure authentication for initiator {{ initiator.name }} for target {{ target.name }}
+- name: Configure authentication for initiator for target
   targetcli_iscsi_auth:
     wwn: "{{ target.name }}"
     initiator_wwn: "{{ initiator.name }}"
@@ -18,7 +18,7 @@
     - Save targetcli configuration
 
 # Assign mapped LUNs to initiator
-- name: Adding mapped LUNs for initiator {{ initiator.name }} and target {{ target.name }}
+- name: Adding mapped LUNs for initiator and target
   targetcli_iscsi_mappedlun:
     wwn: "{{ target.name }}"
     initiator_wwn: "{{ initiator.name }}"

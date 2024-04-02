@@ -4,10 +4,11 @@
   remote_user: vagrant
   become: true
   gather_facts: true
-  collections:
-    - kewlfft.aur
+#  collections:
+#    - kewlfft.aur
 
-- hosts: archlinux
+- name: Setup Archlinux hosts
+  hosts: archlinux
   vars_files:
     - vars/archlinux.yml
   remote_user: vagrant
@@ -15,10 +16,11 @@
   gather_facts: true
   tasks:
     - name: Include iscsi_target role
-      include_role:
+      ansible.builtin.include_role:
         name: githubixx.iscsi_target
 
-- hosts: ubuntu
+- name: Setup Ubuntu hosts
+  hosts: ubuntu
   vars_files:
     - vars/ubuntu.yml
   remote_user: vagrant
@@ -26,5 +28,5 @@
   gather_facts: true
   tasks:
     - name: Include iscsi_target role
-      include_role:
+      ansible.builtin.include_role:
         name: githubixx.iscsi_target
