@@ -30,4 +30,9 @@ iscsi_targets:
           - mapped_lunid: 1
             lunid: 1
     portals:
-      - ip: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0]) }}"
+      - ip: "{{ ansible_facts.get('default_ipv4', {}).get('address', ansible_facts['all_ipv4_addresses'][0]) }}"
+      - ip: "::1"
+
+iscsi_expected_portals:
+  - "{{ ansible_facts.get('default_ipv4', {}).get('address', ansible_facts['all_ipv4_addresses'][0]) }}:3260"
+  - "[::1]:3260"

@@ -18,3 +18,6 @@ iscsi_targets:
             lunid: 0
     portals:
       - ip: "0.0.0.0"
+
+iscsi_expected_portals:
+  - "0.0.0.0:3260"

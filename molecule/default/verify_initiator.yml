@@ -1,0 +1,48 @@
+---
+- name: Check ACL exists for {{ initiator.name }}
+  ansible.builtin.command: >-
+    targetcli '/iscsi/{{ target.name }}/tpg1/acls/{{ initiator.name }} status'
+  register: acl_status_output
+  changed_when: false
+  become: true
+
+- name: Ensure ACL exists for {{ initiator.name }}
+  ansible.builtin.assert:
+    that:
+      - acl_status_output.rc == 0
+
+- name: Read authentication for {{ initiator.name }}
+  ansible.builtin.command: >-
+    targetcli '/iscsi/{{ target.name }}/tpg1/acls/{{ initiator.name }} get auth'
+  register: auth_output
+  changed_when: false
+  become: true
+
+- name: Ensure authentication is configured for {{ initiator.name }}
+  ansible.builtin.assert:
+    that:
+      - "('userid=' ~ initiator.authentication.userid) in auth_output.stdout"
+      - "('password=' ~ initiator.authentication.password) in auth_output.stdout"
+      - >-
+        initiator.authentication.userid_mutual is not defined or
+        ('mutual_userid=' ~ initiator.authentication.userid_mutual) in auth_output.stdout
+      - >-
+        initiator.authentication.password_mutual is not defined or
+        ('mutual_password=' ~ initiator.authentication.password_mutual) in auth_output.stdout
+
+- name: Read mapped LUNs for {{ initiator.name }}
+  ansible.builtin.command: >-
+    targetcli '/iscsi/{{ target.name }}/tpg1/acls/{{ initiator.name }} ls'
+  register: mapped_luns_output
+  changed_when: false
+  become: true
+
+- name: Ensure mapped LUNs exist for {{ initiator.name }}
+  ansible.builtin.assert:
+    that:
+      - "('mapped_lun' ~ (mapped_lun.mapped_lunid | string)) in mapped_luns_output.stdout"
+      - "('lun' ~ (mapped_lun.lunid | string)) in mapped_luns_output.stdout"
+  loop: "{{ initiator.mapped_luns | default([]) }}"
+  loop_control:
+    loop_var: mapped_lun
+    label: "{{ mapped_lun.mapped_lunid }}"

@@ -1,0 +1,56 @@
+---
+- name: Check target portal group exists for {{ target.name }}
+  ansible.builtin.command: >-
+    targetcli '/iscsi/{{ target.name }}/tpg1 status'
+  register: target_status_output
+  changed_when: false
+  become: true
+
+- name: Ensure target portal group exists for {{ target.name }}
+  ansible.builtin.assert:
+    that:
+      - target_status_output.rc == 0
+
+- name: Check backstore exists
+  ansible.builtin.command: >-
+    targetcli '/backstores/{{ disk.type | default("block") }}/{{ disk.name }} status'
+  register: backstore_status_output
+  changed_when: false
+  become: true
+  loop: "{{ target.disks | default([]) }}"
+  loop_control:
+    loop_var: disk
+    label: "{{ disk.name }}"
+
+- name: Ensure backstores exist for {{ target.name }}
+  ansible.builtin.assert:
+    that:
+      - item.rc == 0
+  loop: "{{ backstore_status_output.results | default([]) }}"
+  loop_control:
+    label: "{{ item.disk.name }}"
+
+- name: Capture LUN output for {{ target.name }}
+  ansible.builtin.command: >-
+    targetcli '/iscsi/{{ target.name }}/tpg1/luns ls'
+  register: luns_output
+  changed_when: false
+  become: true
+
+- name: Ensure expected LUNs exist for {{ target.name }}
+  ansible.builtin.assert:
+    that:
+      - "disk.name in luns_output.stdout"
+      - "('lun' ~ (disk.lunid | string)) in luns_output.stdout"
+  loop: "{{ target.disks | default([]) }}"
+  loop_control:
+    loop_var: disk
+    label: "{{ disk.name }}"
+
+- name: Verify initiators for {{ target.name }}
+  ansible.builtin.include_tasks:
+    file: verify_initiator.yml
+  loop: "{{ target.initiators | default([]) }}"
+  loop_control:
+    loop_var: initiator
+    label: "{{ initiator.name }}"

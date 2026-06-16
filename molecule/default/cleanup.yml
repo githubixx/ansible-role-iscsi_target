@@ -1,0 +1,35 @@
+---
+# Copyright (C) 2021-2026 Robert Wimmer
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+- name: Remove leftover libvirt volumes
+  hosts: localhost
+  connection: local
+  become: true
+  gather_facts: false
+  vars:
+    iscsi_target__libvirt_uri: qemu:///system
+    iscsi_target__libvirt_pool: default
+    iscsi_target__instance_names:
+      - test-iscsi-ubuntu2204
+      - test-iscsi-ubuntu2404
+      - test-iscsi-ubuntu2604
+      - test-iscsi-archlinux
+  tasks:
+    - name: List matching leftover libvirt volumes
+      ansible.builtin.shell: |
+        set -o pipefail
+        virsh -c {{ iscsi_target__libvirt_uri | quote }} vol-list {{ iscsi_target__libvirt_pool | quote }} | awk '{print $1}' | \
+          grep -E '{{ iscsi_target__instance_names | join("|") }}' || true
+      args:
+        executable: /bin/bash
+      register: iscsi_target__leftover_volumes
+      changed_when: false
+
+    - name: Delete leftover libvirt volumes
+      ansible.builtin.command:
+        cmd: >-
+          virsh -c {{ iscsi_target__libvirt_uri }} vol-delete {{ item }} {{ iscsi_target__libvirt_pool }}
+      loop: "{{ iscsi_target__leftover_volumes.stdout_lines }}"
+      when: iscsi_target__leftover_volumes.stdout_lines | length > 0
+      changed_when: true
