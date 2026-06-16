@@ -29,11 +29,14 @@
     loop_var: "initiator"
   when: target.state | default("present") == "present"
 
-- name: Remove default portal for {{ target.name }}
+- name: Remove default portals for {{ target.name }}
   targetcli_iscsi_portal:
     wwn: "{{ target.name }}"
-    ip: "0.0.0.0"
+    ip: "{{ item }}"
     state: absent
+  loop:
+    - "0.0.0.0"
+    - "::0"
   notify:
     - Save targetcli configuration
   when: target.state | default("present") == "present"
