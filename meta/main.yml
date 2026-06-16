@@ -10,8 +10,9 @@ galaxy_info:
     - name: ArchLinux
     - name: Ubuntu
       versions:
-        - "focal"
         - "jammy"
+        - "noble"
+        - "resolute"
   galaxy_tags:
     - system
     - disk
