@@ -29,7 +29,7 @@ options:
     required: false
     choices: [present, absent]
 notes:
-   - Tested on Archlinux, Ubuntu 20.04
+  - Tested on Archlinux, Ubuntu 22.04, Ubuntu 24.04, Ubuntu 26.04
 requirements: [ ]
 author: "Ondrej Famera <ondrej-xa2iel8u@famera.cz>"
 '''
@@ -43,7 +43,7 @@ remove block backstore from disk/LV /dev/c7vg/LV2
 
 '''
 
-from distutils.spawn import find_executable
+from shutil import which
 
 def main():
         module = AnsibleModule(
@@ -60,7 +60,7 @@ def main():
         if state == 'present' and not module.params['options']:
             module.fail_json(msg="Missing options parameter needed for creating backstore object")
 
-        if find_executable('targetcli') is None:
+        if which('targetcli') is None:
             module.fail_json(msg="'targetcli' executable not found. Install 'targetcli'.")
 
         result = {}

@@ -39,7 +39,7 @@ options:
     required: false
     default: null
 notes:
-   - Tested on Archlinux, Ubuntu 20.04
+  - Tested on Archlinux, Ubuntu 22.04, Ubuntu 24.04, Ubuntu 26.04
 requirements: [ ]
 author: "Michel Weitbrecht <michel.weitbrecht@stuvus.uni-stuttgart.de>"
 '''
@@ -56,8 +56,8 @@ set userid and password as well as mutual userid and password
 
 '''
 
-from distutils.spawn import find_executable
 import re
+from shutil import which
 
 
 def main():
@@ -72,7 +72,7 @@ def main():
     ),
     supports_check_mode=True)
 
-  if find_executable('targetcli') is None:
+  if which('targetcli') is None:
     module.fail_json(msg="'targetcli' executable not found. Install 'targetcli'.")
 
   try:
@@ -82,10 +82,10 @@ def main():
 
     rc, out, err = module.run_command(
       "targetcli '/iscsi/%(wwn)s/tpg1/acls/%(initiator_wwn)s get auth'" % module.params)
-    userid = re.search('(?<=userid\=).*(?=\n)', out).group(0)
-    password = re.search('(?<=password\=).*(?=\n)', out).group(0)
-    userid_mutual = re.search('(?<=mutual_userid\=).*(?=\n)', out).group(0)
-    password_mutual = re.search('(?<=mutual_password\=).*(?=\n)', out).group(0)
+    userid = re.search(r'(?<=userid=).*(?=\n)', out).group(0)
+    password = re.search(r'(?<=password=).*(?=\n)', out).group(0)
+    userid_mutual = re.search(r'(?<=mutual_userid=).*(?=\n)', out).group(0)
+    password_mutual = re.search(r'(?<=mutual_password=).*(?=\n)', out).group(0)
 
     if rc != 0:
       module.fail_json(msg="failed to read authentication parameters")
