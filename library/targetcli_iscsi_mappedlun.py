@@ -42,7 +42,7 @@ options:
     choices: [present, absent]
 
 notes:
-   - Tested on Archlinux, Ubuntu 20.04
+  - Tested on Archlinux, Ubuntu 22.04, Ubuntu 24.04, Ubuntu 26.04
 requirements: [ ]
 author: "Ricardo Sanchez <ricsanfre@gmail.com>"
 '''
@@ -61,8 +61,8 @@ Remove mapped LUN
 
 '''
 
-from distutils.spawn import find_executable
 import re
+from shutil import which
 
 def main():
   module = AnsibleModule(
@@ -76,7 +76,7 @@ def main():
     ),
     supports_check_mode=True)
 
-  if find_executable('targetcli') is None:
+  if which('targetcli') is None:
     module.fail_json(msg="'targetcli' executable not found. Install 'targetcli'.")
   state = module.params['state']
   initiator_wwn = module.params['initiator_wwn']

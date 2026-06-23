@@ -1,0 +1,13 @@
+---
+iscsi_initiator_test:
+  initiator_iqn: iqn.2021-07.blog.tauceti:node1
+  target_iqn: iqn.2021-11.blog.tauceti:test-iscsi-ubuntu2204
+  target_portal: 172.16.10.10
+  target_port: 3260
+  auth:
+    username: node1user
+    password: node1secret12
+    mutual_username: node1sharedkey
+    mutual_password: node1mutual123
+  expected_luns:
+    - lunid: 0

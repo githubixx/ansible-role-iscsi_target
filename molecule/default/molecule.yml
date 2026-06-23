@@ -16,8 +16,8 @@ driver:
     name: libvirt
 
 platforms:
-  - name: ubuntu2004
-    box: generic/ubuntu2004
+  - name: test-iscsi-ubuntu2204
+    box: githubixx/ubuntu-22.04
     memory: 2048
     cpus: 2
     provider_raw_config_args:
@@ -29,8 +29,8 @@ platforms:
         ip: 172.16.10.10
     groups:
       - ubuntu
-  - name: archlinux
-    box: archlinux/archlinux
+  - name: test-iscsi-archlinux
+    box: githubixx/archlinux
     memory: 2048
     cpus: 2
     provider_raw_config_args:
@@ -43,8 +43,8 @@ platforms:
         ip: 172.16.10.20
     groups:
       - archlinux
-  - name: ubuntu2204
-    box: generic/ubuntu2204
+  - name: test-iscsi-ubuntu2404
+    box: githubixx/ubuntu-24.04
     memory: 2048
     cpus: 2
     provider_raw_config_args:
@@ -56,12 +56,42 @@ platforms:
         ip: 172.16.10.30
     groups:
       - ubuntu
+  - name: test-iscsi-ubuntu2604
+    box: githubixx/ubuntu-26.04
+    memory: 2048
+    cpus: 2
+    provider_raw_config_args:
+      - "storage :file, :size => '1G', :device => 'vdb'"
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: static
+        ip: 172.16.10.40
+    groups:
+      - ubuntu
+  - name: test-iscsi-initiator-ubuntu2204
+    box: githubixx/ubuntu-22.04
+    memory: 2048
+    cpus: 2
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: static
+        ip: 172.16.10.50
+    groups:
+      - initiator
 
 provisioner:
   name: ansible
   playbooks:
     prepare: prepare.yml
     converge: ${MOLECULE_PLAYBOOK:-converge.yml}
+
+scenario:
+  name: default
+  destroy_sequence:
+    - destroy
+    - cleanup
 
 verifier:
   name: ansible

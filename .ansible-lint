@@ -1,4 +1,9 @@
 ---
+kinds:
+  - tasks: molecule/default/verify_target.yml
+  - tasks: molecule/default/verify_initiator.yml
+  - tasks: molecule/default/verify_initiator_client.yml
+
 exclude_paths:
   - library/
 

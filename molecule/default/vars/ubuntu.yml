@@ -10,11 +10,14 @@ iscsi_targets:
       - name: iqn.2021-07.blog.tauceti:node1
         authentication:
           userid: node1user
-          password: node1pw
+          password: node1secret12
           userid_mutual: node1sharedkey
-          password_mutual: node1sharedsecret
+          password_mutual: node1mutual123
         mapped_luns:
           - mapped_lunid: 0
             lunid: 0
     portals:
       - ip: "0.0.0.0"
+
+iscsi_expected_portals:
+  - "0.0.0.0:3260"

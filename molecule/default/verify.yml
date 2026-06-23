@@ -1,8 +1,19 @@
 ---
-- name: Verify setup
-  hosts: all
+- name: Verify target setup
+  hosts: all:!initiator
+  gather_facts: true
+  pre_tasks:
+    - name: Load scenario vars for current distribution
+      ansible.builtin.include_vars: "{{ item }}"
+      with_first_found:
+        - files:
+            - "vars/{{ ansible_facts['distribution'] | lower }}.yml"
+            - "vars/{{ ansible_facts['os_family'] | lower }}.yml"
+          paths:
+            - "{{ playbook_dir }}"
   vars:
     expected_output: "iqn.2021-11.blog.tauceti:{{ ansible_facts['nodename'] }}"
+    expected_portals: "{{ iscsi_expected_portals | default([]) }}"
   tasks:
     - name: Execute targetcli to capture output
       ansible.builtin.command: targetcli "ls /"
@@ -10,7 +21,50 @@
       changed_when: false
       become: true
 
+    - name: Execute targetcli to capture portal output
+      ansible.builtin.command: targetcli "/iscsi/{{ expected_output }}/tpg1/portals ls"
+      register: targetcli_portals_output
+      changed_when: false
+      become: true
+
     - name: Ensure targetcli output contains correct string
       ansible.builtin.assert:
         that:
           - "expected_output in targetcli_output.stdout"
+
+    - name: Ensure targetcli output contains expected portals
+      ansible.builtin.assert:
+        that:
+          - "item in targetcli_portals_output.stdout"
+      loop: "{{ expected_portals }}"
+
+    - name: Read auto_add_mapped_luns preference
+      ansible.builtin.command: targetcli "get global auto_add_mapped_luns"
+      register: auto_add_mapped_luns_output
+      changed_when: false
+      become: true
+
+    - name: Ensure auto_add_mapped_luns is disabled
+      ansible.builtin.assert:
+        that:
+          - "'false' in auto_add_mapped_luns_output.stdout"
+
+    - name: Verify configured iSCSI targets
+      ansible.builtin.include_tasks:
+        file: verify_target.yml
+      loop: "{{ iscsi_targets | default([]) }}"
+      loop_control:
+        loop_var: target
+        label: "{{ target.name }}"
+
+- name: Verify initiator client setup
+  hosts: initiator
+  gather_facts: true
+  pre_tasks:
+    - name: Load initiator scenario vars
+      ansible.builtin.include_vars:
+        file: vars/initiator.yml
+  tasks:
+    - name: Verify iSCSI client connectivity
+      ansible.builtin.include_tasks:
+        file: verify_initiator_client.yml

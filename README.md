@@ -5,14 +5,23 @@ This role configures a Linux-LIO based iSCSI target on a Linux host using `targe
 
 Tested with:
 
-- Ubuntu 20.04
 - Ubuntu 22.04
+- Ubuntu 24.04
+- Ubuntu 26.04
 - Archlinux
 
-Documentation about LIO and Target can be found [here](https://linux-iscsi.org/wiki/Main_Page).
+Documentation about LIO and Target can be found in the [Linux-iSCSI wiki](https://linux-iscsi.org/wiki/Main_Page).
 
 Requirements
 ------------
+
+The custom modules in `library/` only use Python standard library modules together with Ansible's normal module runtime. No additional Python packages need to be installed with `pip` on the managed host.
+
+The managed host still needs:
+
+- a working Python 3 interpreter so Ansible can execute modules
+- the `targetcli` executable, provided by the `targetcli-fb` package on supported distributions
+- existing disks/partitions/LVs if you want to export block devices
 
 This role is not creating any disks/partitions/LVs. It is expected that they are already present on machine or created by some other role. For example: [githubixx.lvm](https://github.com/githubixx/ansible-role-lvm).
 
@@ -46,7 +55,15 @@ Role Variables
 #           - mapped_lunid: 0
 #             lunid: 0
 #     portals:
+#       # IPv4 example
 #       - ip: "0.0.0.0"
+#       # IPv6 example with an explicit address
+#       - ip: "2001:db8::10"
+#       # Dual-stack example with explicit IPv4 and IPv6 portals
+#       - ip: "{{ ansible_facts.get('default_ipv4', {}).get('address', ansible_facts['all_ipv4_addresses'][0]) }}"
+#       - ip: "2001:db8::10"
+#       # Default IPv6 any-address portal example
+#       - ip: "::0"
 #
 # For more information see README.
 iscsi_targets: []
@@ -72,8 +89,9 @@ The configuration above will create an iSCSI setup that will look like this (Out
 #   |     |   o- mapped_lun0 ........................................ [lun0 block/lun_node1 (rw)]
 #   |     o- luns ..................................................................... [LUNs: 1]
 #   |     | o- lun0 ............................. [block/lun_node1 (/dev/vdb) (default_tg_pt_gp)]
-#   |     o- portals ............................................................... [Portals: 1]
-#   |       o- 0.0.0.0:3260 ................................................................ [OK]
+#   |     o- portals ............................................................... [Portals: 2]
+#   |       o- 192.0.2.10:3260 ............................................................ [OK]
+#   |       o- [2001:db8::10]:3260 ........................................................ [OK]
 #   o- loopback .................................................................... [Targets: 0]
 #   o- vhost ....................................................................... [Targets: 0]
 #   o- xen-pvscsi .................................................................. [Targets: 0]
@@ -87,7 +105,9 @@ The configuration above will create an iSCSI setup that will look like this (Out
 
 `mapped_luns` assigns mapped LUNs (logical units) to initiator. Normally `mapped_lunid` and `lunid` matches the same `lunid` in `iscsi_targets.disks`. But it also could be different.
 
-`portals` allows to specify the IP address the iSCSI target service should listen on. E.g. if `0.0.0.0` is specified then the service will listen on all interfaces on port `3260`. Of course Ansible facts can also be used e.g. `{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0]) }}`.
+`portals` allows to specify the IP address the iSCSI target service should listen on. IPv4 addresses like `0.0.0.0` and explicit host IPv4 addresses are supported. Explicit IPv6 addresses like `2001:db8::10` are supported as well. For IPv6, the role accepts the plain address and handles the bracketed `targetcli` syntax internally. The special `::0` value maps to targetcli's default IPv6 any-address portal on port `3260`. Of course Ansible facts can also be used e.g. `{{ ansible_facts.get('default_ipv4', {}).get('address', ansible_facts['all_ipv4_addresses'][0]) }}`.
+
+Global `targetcli` preferences are verified after changes are applied. On affected `targetcli` versions, such as Ubuntu 26.04, the role falls back to updating `prefs.bin` if the runtime preference does not reflect the requested value.
 
 ```yaml
 #######################################
@@ -146,13 +166,15 @@ Example Playbook
               - mapped_lunid: 0
                 lunid: 0
         portals:
-          - ip: "0.0.0.0"
+          - ip: "{{ ansible_facts.get('default_ipv4', {}).get('address', ansible_facts['all_ipv4_addresses'][0]) }}"
+          - ip: "2001:db8::10"
 ```
 
 Testing
 -------
 
-This role has a small test setup that is created using [Molecule](https://github.com/ansible-community/molecule), libvirt (vagrant-libvirt) and QEMU/KVM. Please see my blog post [Testing Ansible roles with Molecule, libvirt (vagrant-libvirt) and QEMU/KVM](https://www.tauceti.blog/posts/testing-ansible-roles-with-molecule-libvirt-vagrant-qemu-kvm/) how to setup. The test configuration is [here](https://github.com/githubixx/ansible-role-iscsi_target/tree/master/molecule/kvm).
+This role has a small test setup that is created using [Molecule](https://github.com/ansible-community/molecule), libvirt (vagrant-libvirt) and QEMU/KVM. Please see my blog post [Testing Ansible roles with Molecule, libvirt (vagrant-libvirt) and QEMU/KVM](https://www.tauceti.blog/posts/testing-ansible-roles-with-molecule-libvirt-vagrant-qemu-kvm/) how to setup. The [Molecule default scenario](https://github.com/githubixx/ansible-role-iscsi_target/tree/master/molecule/default) contains the test configuration.
+The verify stage checks targets, backstores, LUNs, ACLs, authentication, mapped LUNs, preferences, and expected portal bindings.
 
 Afterwards molecule can be executed:
 

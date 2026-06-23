@@ -35,7 +35,7 @@ options:
     default: present
     choices: [present, absent]
 notes:
-   - Tested on Archlinux, Ubuntu 20.04
+  - Tested on Archlinux, Ubuntu 22.04, Ubuntu 24.04, Ubuntu 26.04
 requirements: [ ]
 authors: "Ondrej Famera <ondrej-xa2iel8u@famera.cz>" and "Ricardo Sanchez <ricsanfre@gmail.com>"
 '''
@@ -48,7 +48,8 @@ remove iSCSI LUN
 - targetcli_iscsi_lun: wwn=iqn.1994-05.com.redhat:hell backstopre_type=block backstore_name=test2 lunid=1 state=absent
 '''
 
-from distutils.spawn import find_executable
+from shutil import which
+
 
 def main():
         module = AnsibleModule(
@@ -67,6 +68,9 @@ def main():
 
         result = {}
         luns = {}
+
+        if which('targetcli') is None:
+          module.fail_json(msg="'targetcli' executable not found. Install 'targetcli'.")
 
         try:
             # check if the iscsi target exists

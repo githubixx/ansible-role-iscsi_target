@@ -20,7 +20,15 @@
 #           - mapped_lunid: 0
 #             lunid: 0
 #     portals:
+#       # IPv4 example
 #       - ip: "0.0.0.0"
+#       # IPv6 example with an explicit address
+#       - ip: "2001:db8::10"
+#       # Dual-stack example with explicit IPv4 and IPv6 portals
+#       - ip: "{{ ansible_facts.get('default_ipv4', {}).get('address', ansible_facts['all_ipv4_addresses'][0]) }}"
+#       - ip: "2001:db8::10"
+#       # Default IPv6 any-address portal example
+#       - ip: "::0"
 #
 # For more information see README.
 iscsi_targets: []
