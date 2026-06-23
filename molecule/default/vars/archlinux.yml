@@ -1,4 +1,6 @@
 ---
+iscsi_archlinux_portal_ip: 172.16.10.20
+
 iscsi_targets:
   - name: "iqn.2021-11.blog.tauceti:{{ ansible_facts['nodename'] }}"
     disks:
@@ -14,25 +16,25 @@ iscsi_targets:
       - name: iqn.2021-07.blog.tauceti:node1
         authentication:
           userid: node1user
-          password: node1pw
+          password: node1secret12
           userid_mutual: node1sharedkey
-          password_mutual: node1sharedsecret
+          password_mutual: node1mutual123
         mapped_luns:
           - mapped_lunid: 0
             lunid: 0
       - name: iqn.2021-07.blog.tauceti:node2
         authentication:
           userid: node2user
-          password: node2pw
+          password: node2secret12
           userid_mutual: node2sharedkey
-          password_mutual: node2sharedsecret
+          password_mutual: node2mutual123
         mapped_luns:
           - mapped_lunid: 1
             lunid: 1
     portals:
-      - ip: "{{ ansible_facts.get('default_ipv4', {}).get('address', ansible_facts['all_ipv4_addresses'][0]) }}"
+      - ip: "{{ iscsi_archlinux_portal_ip }}"
       - ip: "::1"
 
 iscsi_expected_portals:
-  - "{{ ansible_facts.get('default_ipv4', {}).get('address', ansible_facts['all_ipv4_addresses'][0]) }}:3260"
+  - "{{ iscsi_archlinux_portal_ip }}:3260"
   - "[::1]:3260"
