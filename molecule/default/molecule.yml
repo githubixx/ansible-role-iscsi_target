@@ -69,6 +69,17 @@ platforms:
         ip: 172.16.10.40
     groups:
       - ubuntu
+  - name: test-iscsi-initiator-ubuntu2204
+    box: githubixx/ubuntu-22.04
+    memory: 2048
+    cpus: 2
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: static
+        ip: 172.16.10.50
+    groups:
+      - initiator
 
 provisioner:
   name: ansible

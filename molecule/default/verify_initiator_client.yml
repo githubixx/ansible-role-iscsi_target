@@ -1,0 +1,278 @@
+---
+- name: Verify iSCSI initiator can connect to target
+  block:
+    - name: Ensure initiator IQN is configured for client verification
+      ansible.builtin.lineinfile:
+        path: /etc/iscsi/initiatorname.iscsi
+        regexp: '^InitiatorName='
+        line: 'InitiatorName={{ iscsi_initiator_test.initiator_iqn }}'
+      become: true
+
+    - name: Restart iscsid before client verification
+      ansible.builtin.systemd_service:
+        name: iscsid
+        state: restarted
+      become: true
+
+    - name: Read active initiator IQN
+      ansible.builtin.command:
+        argv:
+          - awk
+          - -F=
+          - '/^InitiatorName=/ {print $2}'
+          - /etc/iscsi/initiatorname.iscsi
+      register: iscsi_initiator_test__active_initiator_name
+      changed_when: false
+      become: true
+
+    - name: Ensure active initiator IQN matches ACL expectations
+      ansible.builtin.assert:
+        that:
+          - iscsi_initiator_test__active_initiator_name.stdout == iscsi_initiator_test.initiator_iqn
+
+    - name: Flush open-iscsi node cache after initiator IQN enforcement
+      ansible.builtin.command:
+        argv:
+          - iscsiadm
+          - -m
+          - node
+          - -o
+          - delete
+      changed_when: false
+      failed_when: false
+      become: true
+
+    - name: Set initiator test portal
+      ansible.builtin.set_fact:
+        iscsi_initiator_test__portal: >-
+          {{ iscsi_initiator_test.target_portal }}:{{ iscsi_initiator_test.target_port }}
+        iscsi_initiator_test__by_path_prefix: >-
+          {{ '/dev/disk/by-path/ip-' ~ iscsi_initiator_test.target_portal ~ ':' ~
+          (iscsi_initiator_test.target_port | string) ~ '-iscsi-' ~
+          iscsi_initiator_test.target_iqn ~ '-lun-' }}
+
+    - name: Log out stale iSCSI session
+      ansible.builtin.command:
+        argv:
+          - iscsiadm
+          - -m
+          - node
+          - -T
+          - "{{ iscsi_initiator_test.target_iqn }}"
+          - -p
+          - "{{ iscsi_initiator_test__portal }}"
+          - --logout
+      register: iscsi_initiator_test__logout_stale
+      changed_when: false
+      failed_when: false
+      become: true
+
+    - name: Remove stale iSCSI node definition
+      ansible.builtin.command:
+        argv:
+          - iscsiadm
+          - -m
+          - node
+          - -T
+          - "{{ iscsi_initiator_test.target_iqn }}"
+          - -p
+          - "{{ iscsi_initiator_test__portal }}"
+          - -o
+          - delete
+      register: iscsi_initiator_test__delete_stale_node
+      changed_when: false
+      failed_when: false
+      become: true
+
+    - name: Discover iSCSI target
+      ansible.builtin.command:
+        argv:
+          - iscsiadm
+          - -m
+          - discovery
+          - -t
+          - st
+          - -p
+          - "{{ iscsi_initiator_test__portal }}"
+      register: iscsi_initiator_test__discovery
+      changed_when: false
+      become: true
+
+    - name: Ensure target discovery returned expected IQN
+      ansible.builtin.assert:
+        that:
+          - iscsi_initiator_test.target_iqn in iscsi_initiator_test__discovery.stdout
+
+    - name: Configure iSCSI node authentication
+      ansible.builtin.command:
+        argv:
+          - iscsiadm
+          - -m
+          - node
+          - -T
+          - "{{ iscsi_initiator_test.target_iqn }}"
+          - -p
+          - "{{ iscsi_initiator_test__portal }}"
+          - --op
+          - update
+          - -n
+          - "{{ item.name }}"
+          - -v
+          - "{{ item.value }}"
+      loop:
+        - name: node.session.auth.authmethod
+          value: CHAP
+        - name: node.session.auth.username
+          value: "{{ iscsi_initiator_test.auth.username }}"
+        - name: node.session.auth.password
+          value: "{{ iscsi_initiator_test.auth.password }}"
+        - name: node.session.auth.username_in
+          value: "{{ iscsi_initiator_test.auth.mutual_username }}"
+        - name: node.session.auth.password_in
+          value: "{{ iscsi_initiator_test.auth.mutual_password }}"
+      loop_control:
+        label: "{{ item.name }}"
+      changed_when: false
+      become: true
+
+    - name: Capture configured iSCSI node authentication
+      ansible.builtin.command:
+        argv:
+          - iscsiadm
+          - -m
+          - node
+          - -T
+          - "{{ iscsi_initiator_test.target_iqn }}"
+          - -p
+          - "{{ iscsi_initiator_test__portal }}"
+          - -o
+          - show
+      register: iscsi_initiator_test__node_config
+      changed_when: false
+      become: true
+
+    - name: Ensure iSCSI node authentication settings are applied
+      ansible.builtin.assert:
+        that:
+          - "'node.session.auth.authmethod = CHAP' in iscsi_initiator_test__node_config.stdout"
+          - "('node.session.auth.username = ' ~ iscsi_initiator_test.auth.username) in iscsi_initiator_test__node_config.stdout"
+          - "('node.session.auth.username_in = ' ~ iscsi_initiator_test.auth.mutual_username) in iscsi_initiator_test__node_config.stdout"
+
+    - name: Log in to iSCSI target
+      ansible.builtin.command:
+        argv:
+          - iscsiadm
+          - -m
+          - node
+          - -T
+          - "{{ iscsi_initiator_test.target_iqn }}"
+          - -p
+          - "{{ iscsi_initiator_test__portal }}"
+          - --login
+      register: iscsi_initiator_test__login
+      changed_when: false
+      become: true
+
+    - name: Capture active iSCSI sessions
+      ansible.builtin.command:
+        argv:
+          - iscsiadm
+          - -m
+          - session
+      register: iscsi_initiator_test__sessions
+      changed_when: false
+      become: true
+
+    - name: Ensure target session is active
+      ansible.builtin.assert:
+        that:
+          - iscsi_initiator_test.target_iqn in iscsi_initiator_test__sessions.stdout
+
+    - name: Wait for expected by-path device links
+      ansible.builtin.wait_for:
+        path: "{{ iscsi_initiator_test__by_path_prefix }}{{ expected_lun.lunid }}"
+        state: present
+        timeout: 30
+      loop: "{{ iscsi_initiator_test.expected_luns }}"
+      loop_control:
+        loop_var: expected_lun
+        label: "lun{{ expected_lun.lunid }}"
+      become: true
+
+    - name: Resolve expected LUN device paths
+      ansible.builtin.command:
+        argv:
+          - readlink
+          - -f
+          - "{{ iscsi_initiator_test__by_path_prefix }}{{ expected_lun.lunid }}"
+      register: iscsi_initiator_test__resolved_devices
+      changed_when: false
+      loop: "{{ iscsi_initiator_test.expected_luns }}"
+      loop_control:
+        loop_var: expected_lun
+        label: "lun{{ expected_lun.lunid }}"
+      become: true
+
+    - name: Ensure resolved LUN device paths exist
+      ansible.builtin.assert:
+        that:
+          - item.stdout.startswith('/dev/')
+      loop: "{{ iscsi_initiator_test__resolved_devices.results }}"
+      loop_control:
+        label: "lun{{ item.expected_lun.lunid }}"
+
+    - name: Perform read-only I/O check on expected LUNs
+      ansible.builtin.command:
+        argv:
+          - dd
+          - if={{ item.stdout }}
+          - of=/dev/null
+          - bs=1M
+          - count=1
+          - status=none
+      register: iscsi_initiator_test__dd
+      changed_when: false
+      loop: "{{ iscsi_initiator_test__resolved_devices.results }}"
+      loop_control:
+        label: "{{ item.stdout }}"
+      become: true
+
+    - name: Ensure read-only I/O checks succeeded
+      ansible.builtin.assert:
+        that:
+          - item.rc == 0
+      loop: "{{ iscsi_initiator_test__dd.results }}"
+      loop_control:
+        label: "{{ item.item.stdout }}"
+
+  always:
+    - name: Log out from iSCSI target
+      ansible.builtin.command:
+        argv:
+          - iscsiadm
+          - -m
+          - node
+          - -T
+          - "{{ iscsi_initiator_test.target_iqn }}"
+          - -p
+          - "{{ iscsi_initiator_test.target_portal }}:{{ iscsi_initiator_test.target_port }}"
+          - --logout
+      changed_when: false
+      failed_when: false
+      become: true
+
+    - name: Remove discovered iSCSI node definition
+      ansible.builtin.command:
+        argv:
+          - iscsiadm
+          - -m
+          - node
+          - -T
+          - "{{ iscsi_initiator_test.target_iqn }}"
+          - -p
+          - "{{ iscsi_initiator_test.target_portal }}:{{ iscsi_initiator_test.target_port }}"
+          - -o
+          - delete
+      changed_when: false
+      failed_when: false
+      become: true

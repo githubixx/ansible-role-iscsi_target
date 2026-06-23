@@ -1,6 +1,6 @@
 ---
-- name: Verify setup
-  hosts: all
+- name: Verify target setup
+  hosts: all:!initiator
   gather_facts: true
   pre_tasks:
     - name: Load scenario vars for current distribution
@@ -56,3 +56,15 @@
       loop_control:
         loop_var: target
         label: "{{ target.name }}"
+
+- name: Verify initiator client setup
+  hosts: initiator
+  gather_facts: true
+  pre_tasks:
+    - name: Load initiator scenario vars
+      ansible.builtin.include_vars:
+        file: vars/initiator.yml
+  tasks:
+    - name: Verify iSCSI client connectivity
+      ansible.builtin.include_tasks:
+        file: verify_initiator_client.yml

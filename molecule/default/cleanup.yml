@@ -15,6 +15,7 @@
       - test-iscsi-ubuntu2404
       - test-iscsi-ubuntu2604
       - test-iscsi-archlinux
+      - test-iscsi-initiator-ubuntu2204
   tasks:
     - name: List matching leftover libvirt volumes
       ansible.builtin.shell: |

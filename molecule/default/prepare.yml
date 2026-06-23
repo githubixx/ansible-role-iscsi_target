@@ -38,3 +38,40 @@
       ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 3600
+
+- name: Setup initiator hosts
+  hosts: initiator
+  remote_user: vagrant
+  become: true
+  gather_facts: true
+  vars_files:
+    - vars/initiator.yml
+  tasks:
+    - name: Update APT package cache on initiator hosts
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install open-iscsi on initiator hosts
+      ansible.builtin.apt:
+        name: open-iscsi
+        state: present
+
+    - name: Configure initiator IQN
+      ansible.builtin.lineinfile:
+        path: /etc/iscsi/initiatorname.iscsi
+        regexp: '^InitiatorName='
+        line: 'InitiatorName={{ iscsi_initiator_test.initiator_iqn }}'
+      notify:
+        - Restart iscsid
+
+    - name: Ensure iscsid is enabled and started
+      ansible.builtin.systemd_service:
+        name: iscsid
+        enabled: true
+        state: started
+  handlers:
+    - name: Restart iscsid
+      ansible.builtin.systemd_service:
+        name: iscsid
+        state: restarted
