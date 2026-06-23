@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.0.0
+
+- remove support for Ubuntu 20.04 (EOL)
+- add Ubuntu 24.04 support
+- add Ubuntu 26.04 support
+- fix custom Ansible modules for Python 3.12 by replacing `distutils.spawn.find_executable`
+- Ubuntu: stop installing `python3-distutils`, which is no longer available on Ubuntu 24.04+
+- Molecule: remove Ubuntu 20.04 test and add Ubuntu 24.04 and Ubuntu 26.04 tests
+- Molecule: remove leftover libvirt volumes during `molecule destroy`
+- add dual-stack Molecule coverage and document IPv6 portal support
+- handle targetcli default IPv6 portal `::0` as a special create case
+- Molecule: strengthen `verify` coverage for targets, backstores, LUNs, ACLs, auth, mapped LUNs, preferences, and portals
+- targetcli preferences: verify preference changes and fall back to updating `prefs.bin` when Ubuntu 26.04 `targetcli` reports success without changing state
+
 ## 2.0.0
 
 - remove support of Ubuntu 18.04 (EOL)
